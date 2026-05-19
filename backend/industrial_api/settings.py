@@ -1,4 +1,4 @@
-import os
+    import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -6,7 +6,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'development-key-change-me')
 DEBUG = os.getenv('DJANGO_DEBUG', '1') == '1'
 CSRF_TRUSTED_ORIGINS = [origin for origin in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if origin]
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = os.getenv(
+    'DJANGO_ALLOWED_HOSTS',
+    'localhost,127.0.0.1,industrial-field-data-analytics.onrender.com'
+).split(',')
 
 INSTALLED_APPS = [
     'django.contrib.auth',
