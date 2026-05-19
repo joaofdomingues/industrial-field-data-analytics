@@ -125,7 +125,7 @@ import { Line, Bar } from 'vue-chartjs'
 
 ChartJS.register(Title, Tooltip, Legend, LineElement, BarElement, CategoryScale, LinearScale, PointElement)
 
-const API = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
+const API = import.meta.env.VITE_API_URL || 'https://industrial-field-data-analytics.onrender.com'
 
 export default {
   components: { Line, Bar },
