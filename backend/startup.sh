@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+set -e
+python manage.py migrate --noinput
+python manage.py import_machine_data --reset || true
+python manage.py collectstatic --noinput
+gunicorn industrial_api.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 3

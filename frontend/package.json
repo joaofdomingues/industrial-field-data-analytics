@@ -1,0 +1,17 @@
+{
+  "name": "industrial-load-dashboard",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "chart.js": "^4.5.1",
+    "vite": "latest",
+    "vue": "latest",
+    "vue-chartjs": "^5.3.3"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.7"
+  }
+}
