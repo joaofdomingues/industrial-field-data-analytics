@@ -17,4 +17,4 @@ COPY data/ /app/data/
 
 EXPOSE 8000
 
-CMD python manage.py migrate && python manage.py import_machine_data --reset && gunicorn industrial_api.wsgi:application --bind 0.0.0.0:$PORT
+CMD ["sh", "-c", "python manage.py migrate && python manage.py import_machine_data --reset && gunicorn industrial_api.wsgi:application --bind 0.0.0.0:$PORT"]
