@@ -17,4 +17,4 @@ COPY data/ /app/data/
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "python manage.py migrate && python manage.py import_machine_data --reset && gunicorn industrial_api.wsgi:application --bind 0.0.0.0:$PORT"]
+CMD ["sh", "-c", "python manage.py migrate && python manage.py import_machine_data --reset && python manage.py shell -c \"from django.contrib.auth.models import User; User.objects.filter(username='demo').exists() or User.objects.create_user('demo', password='demo12345')\" && gunicorn industrial_api.wsgi:application --bind 0.0.0.0:$PORT"]
