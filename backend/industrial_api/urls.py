@@ -2,6 +2,10 @@ from django.urls import path
 from analytics import views
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from analytics.views import machine_detail, upload_telemetry_csv
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 urlpatterns = [
     path('health/', views.health),
@@ -18,4 +22,6 @@ urlpatterns = [
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
     path("machines/<str:machine_code>/", machine_detail, name="machine-detail"),
     path("upload-csv/", upload_telemetry_csv, name="upload-telemetry-csv"),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
