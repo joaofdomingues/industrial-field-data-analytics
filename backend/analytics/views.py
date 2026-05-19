@@ -1,3 +1,6 @@
+import csv
+from io import TextIOWrapper
+from django.utils.dateparse import parse_datetime
 from decimal import Decimal
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -241,3 +244,70 @@ def machine_detail(request, machine_code):
         'load_profiles': hourly_load_profiles(machine_code),
         'reliability': reliability,
     })
+
+@api_view(['POST'])
+def upload_telemetry_csv(request):
+    """Upload a telemetry CSV file and import records into the database."""
+
+    uploaded_file = request.FILES.get('file')
+
+    if not uploaded_file:
+        return Response({'error': 'No CSV file uploaded. Use field name "file".'}, status=400)
+
+    try:
+        decoded_file = TextIOWrapper(uploaded_file.file, encoding='utf-8')
+        reader = csv.DictReader(decoded_file)
+
+        created_records = 0
+        created_machines = 0
+        errors = []
+
+        for index, row in enumerate(reader, start=2):
+            try:
+                machine_code = row.get('machine_code') or row.get('MachineCode') or row.get('machine')
+                machine_name = row.get('machine_name') or row.get('MachineName') or machine_code
+                factory_zone = row.get('factory_zone') or row.get('FactoryZone') or 'Unknown'
+
+                if not machine_code:
+                    errors.append({'row': index, 'error': 'Missing machine_code'})
+                    continue
+
+                machine, created = Machine.objects.get_or_create(
+                    machine_code=machine_code,
+                    defaults={
+                        'machine_name': machine_name,
+                        'factory_zone': factory_zone,
+                        'status': 'Active',
+                    }
+                )
+
+                if created:
+                    created_machines += 1
+
+                recorded_at = (
+                    parse_datetime(row.get('recorded_at') or row.get('timestamp') or '')
+                )
+
+                SensorData.objects.create(
+                    machine=machine,
+                    temperature=row.get('temperature') or row.get('temp') or 0,
+                    vibration=row.get('vibration') or 0,
+                    energy_consumption=row.get('energy_consumption') or row.get('energy') or 0,
+                    load_percentage=row.get('load_percentage') or row.get('load') or 0,
+                    recorded_at=recorded_at,
+                )
+
+                created_records += 1
+
+            except Exception as exc:
+                errors.append({'row': index, 'error': str(exc)})
+
+        return Response({
+            'status': 'success',
+            'created_records': created_records,
+            'created_machines': created_machines,
+            'errors': errors[:20],
+        })
+
+    except Exception as exc:
+        return Response({'error': str(exc)}, status=500)
