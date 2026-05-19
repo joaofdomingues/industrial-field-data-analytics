@@ -495,26 +495,16 @@ export default {
       try {
         const suffix = this.selectedMachine !== 'All' ? `?machine=${this.selectedMachine}` : ''
 
-        const [health, machines, kpis, load, profiles, alerts, quality, reliability] =
-          await Promise.all([
-            this.getJson('/health/'),
-            this.getJson('/machines/'),
-            this.getJson('/kpis/'),
-            this.getJson(`/machine-load/${suffix}`),
-            this.getJson(`/load-profiles/${suffix}`),
-            this.getJson('/alerts/'),
-            this.getJson('/data-quality/'),
-            this.getJson('/reliability/summary/')
-          ])
+        const dashboard = await this.getJson(`/engineering-summary/${suffix}`)
 
-        this.apiOnline = health.status === 'ok'
-        this.machines = machines
-        this.kpis = kpis
-        this.machineLoad = load
-        this.loadProfiles = profiles
-        this.alerts = alerts
-        this.dataQuality = quality
-        this.reliability = reliability
+        this.apiOnline = dashboard.health?.status === 'ok'
+        this.machines = dashboard.machines || []
+        this.kpis = dashboard.kpis || this.kpis
+        this.machineLoad = dashboard.latest_field_data || []
+        this.loadProfiles = dashboard.load_profiles || []
+        this.alerts = dashboard.alerts || []
+        this.dataQuality = dashboard.data_quality || []
+        this.reliability = dashboard.reliability || []
         this.lastUpdated = new Date().toLocaleTimeString()
       } catch (error) {
         this.apiOnline = false
