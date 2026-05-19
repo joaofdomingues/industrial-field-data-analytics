@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
     "analytics",
+    "drf_spectacular",
 ]
 
 MIDDLEWARE = [
@@ -49,6 +50,7 @@ TIME_ZONE = "Europe/Lisbon"
 
 REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 DATABASE_URL = os.getenv("DATABASE_URL")
