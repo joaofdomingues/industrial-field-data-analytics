@@ -205,3 +205,39 @@ def engineering_summary(request):
         'alerts': latest_alerts,
         'data_quality': quality_issues[:50],
     })
+
+@api_view(['GET'])
+def machine_detail(request, machine_code):
+    """Detailed analytics for a single machine."""
+
+    try:
+        machine = Machine.objects.get(machine_code=machine_code)
+    except Machine.DoesNotExist:
+        return Response({'error': 'Machine not found'}, status=404)
+
+    records = SensorData.objects.select_related('machine').filter(
+        machine=machine
+    ).order_by('-recorded_at')
+
+    latest_records = [row_to_point(row) for row in records[:50]]
+
+    reliability = next(
+        (
+            row for row in machine_reliability_summary()
+            if row['machine_code'] == machine_code
+        ),
+        None
+    )
+
+    return Response({
+        'machine': {
+            'machine_code': machine.machine_code,
+            'machine_name': machine.machine_name,
+            'factory_zone': machine.factory_zone,
+            'status': machine.status,
+        },
+        'records_count': records.count(),
+        'latest_records': latest_records,
+        'load_profiles': hourly_load_profiles(machine_code),
+        'reliability': reliability,
+    })

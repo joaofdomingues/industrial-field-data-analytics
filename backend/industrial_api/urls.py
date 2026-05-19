@@ -1,6 +1,7 @@
 from django.urls import path
 from analytics import views
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from analytics.views import machine_detail
 
 urlpatterns = [
     path('health/', views.health),
@@ -15,4 +16,5 @@ urlpatterns = [
     path('engineering-summary/', views.engineering_summary),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
+    path("machines/<str:machine_code>/", machine_detail, name="machine-detail"),
 ]
