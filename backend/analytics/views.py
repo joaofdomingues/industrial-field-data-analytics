@@ -146,10 +146,62 @@ def data_quality(request):
 @api_view(['GET'])
 def engineering_summary(request):
     """Single endpoint intended for dashboards and interview demos."""
+
     machine = request.GET.get('machine')
+
+    latest_data = [
+        row_to_point(row)
+        for row in SensorData.objects.select_related('machine')
+        .order_by('-recorded_at')[:20]
+    ]
+
+    latest_alerts = [
+        {
+            'machine_code': row.machine.machine_code,
+            'machine_name': row.machine.machine_name,
+            'alert_type': row.alert_type,
+            'severity': row.severity,
+            'message': row.message,
+            'created_at': row.created_at.isoformat(),
+        }
+        for row in Alert.objects.select_related('machine')
+        .order_by('-created_at')[:20]
+    ]
+
+    quality_issues = []
+
+    for record in SensorData.objects.select_related('machine').all().order_by('-recorded_at')[:200]:
+        checks = [
+            ('High temperature', 'Critical', record.temperature, 90),
+            ('High vibration', 'Warning', record.vibration, 5),
+            ('Machine overload', 'Critical', record.load_percentage, 95),
+            ('High energy consumption', 'Warning', record.energy_consumption, 200),
+        ]
+
+        for issue, severity, value, threshold in checks:
+            if value > threshold:
+                quality_issues.append({
+                    'machine_code': record.machine.machine_code,
+                    'machine': record.machine.machine_name,
+                    'zone': record.machine.factory_zone,
+                    'issue': issue,
+                    'severity': severity,
+                    'value': as_float(value),
+                    'threshold': threshold,
+                    'recorded_at': record.recorded_at.isoformat(),
+                })
+
     return Response({
+        'health': {
+            'status': 'ok',
+            'service': 'industrial-field-data-api',
+            'version': '4.0.0'
+        },
         'kpis': engineering_kpis(),
         'machines': machine_inventory_payload(),
         'load_profiles': hourly_load_profiles(machine),
         'reliability': machine_reliability_summary(),
+        'latest_field_data': latest_data,
+        'alerts': latest_alerts,
+        'data_quality': quality_issues[:50],
     })
