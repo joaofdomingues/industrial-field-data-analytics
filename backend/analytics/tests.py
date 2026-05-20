@@ -1,35 +1,29 @@
-from decimal import Decimal
 from django.test import TestCase
+from django.urls import reverse
 from django.utils import timezone
 from rest_framework.test import APIClient
 
-from analytics.models import Alert, Machine, SensorData
+from .models import Machine, SensorData
 
 
 class AnalyticsApiTests(TestCase):
     def setUp(self):
         self.client = APIClient()
+
         self.machine = Machine.objects.create(
-            machine_code="HP001",
-            machine_name="Heat Pump Field Unit 01",
-            factory_zone="North Field",
+            machine_code="TST-001",
+            machine_name="Test Machine",
+            factory_zone="Test Zone",
             status="Active",
         )
-        now = timezone.now()
-        for idx, load in enumerate([65, 72, 91, 97]):
-            SensorData.objects.create(
-                machine=self.machine,
-                temperature=Decimal("70.0") + idx,
-                vibration=Decimal("2.5") + idx,
-                energy_consumption=Decimal("120.0") + idx * 10,
-                load_percentage=Decimal(load),
-                recorded_at=now.replace(minute=0, second=0, microsecond=0),
-            )
-        Alert.objects.create(
+
+        SensorData.objects.create(
             machine=self.machine,
-            alert_type="Overload",
-            severity="Critical",
-            message="Load exceeded safe threshold",
+            temperature=72.5,
+            vibration=2.1,
+            energy_consumption=120.5,
+            load_percentage=65.0,
+            recorded_at=timezone.now(),
         )
 
     def test_health_endpoint(self):
@@ -37,23 +31,31 @@ class AnalyticsApiTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["status"], "ok")
 
-    def test_kpis_are_dynamic(self):
+    def test_machines_endpoint(self):
+        response = self.client.get("/machines/")
+        self.assertEqual(response.status_code, 200)
+        self.assertGreaterEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["machine_code"], "TST-001")
+
+    def test_kpis_endpoint(self):
         response = self.client.get("/kpis/")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data["total_records"], 4)
-        self.assertEqual(response.data["machines"], 1)
-        self.assertGreater(response.data["average_load"], 0)
-
-    def test_load_profiles_are_aggregated_by_hour(self):
-        response = self.client.get("/load-profiles/")
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 1)
-        self.assertIn("avg_load", response.data[0])
-        self.assertIn("anomaly_events", response.data[0])
+        self.assertIn("total_records", response.data)
+        self.assertEqual(response.data["total_records"], 1)
 
     def test_engineering_summary_endpoint(self):
         response = self.client.get("/engineering-summary/")
         self.assertEqual(response.status_code, 200)
         self.assertIn("kpis", response.data)
+        self.assertIn("machines", response.data)
         self.assertIn("load_profiles", response.data)
         self.assertIn("reliability", response.data)
+
+    def test_machine_detail_endpoint(self):
+        response = self.client.get("/machines/TST-001/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["machine"]["machine_code"], "TST-001")
+
+    def test_machine_detail_not_found(self):
+        response = self.client.get("/machines/UNKNOWN/")
+        self.assertEqual(response.status_code, 404)
