@@ -548,7 +548,7 @@ async uploadCsv() {
     }
 
     this.uploadMessage =
-      `Upload successful: ${result.created_records} records imported.`
+      `Upload successful: ${result.created_records} records imported. Dashboard refreshed.`
 
     await this.loadDashboardData()
 
@@ -559,15 +559,22 @@ async uploadCsv() {
     this.uploading = false
   }
 },
-    async getJson(path) {
-      const response = await fetch(`${API}${path}`)
+async getJson(path) {
+  try {
+    const response = await fetch(`${API}${path}`)
 
-      if (!response.ok) {
-        throw new Error(`API error ${response.status} on ${path}`)
-      }
+    if (!response.ok) {
+      throw new Error(`API error ${response.status} on ${path}`)
+    }
 
-      return response.json()
-    },
+    return await response.json()
+  } catch (error) {
+    console.error(`Failed request: ${path}`, error)
+    this.errorMessage =
+      'Backend API temporarily unavailable. Render cold start or server issue detected.'
+    return null
+  }
+},
 
     async loadDashboardData() {
       this.loading = true
@@ -577,6 +584,9 @@ async uploadCsv() {
         const suffix = this.selectedMachine !== 'All' ? `?machine=${this.selectedMachine}` : ''
 
         const dashboard = await this.getJson(`/engineering-summary/${suffix}`)
+        if (!dashboard) {
+  return
+}
 
         this.apiOnline = dashboard.health?.status === 'ok'
         this.machines = dashboard.machines || []
