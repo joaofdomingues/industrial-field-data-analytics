@@ -558,7 +558,7 @@ async uploadCsv() {
   } finally {
     this.uploading = false
   }
-}
+};
     async getJson(path) {
       const response = await fetch(`${API}${path}`)
 
