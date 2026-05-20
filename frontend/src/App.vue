@@ -369,7 +369,9 @@ ChartJS.register(
   Filler
 )
 
-const API = import.meta.env.VITE_API_URL || 'https://industrial-field-data-analytics.onrender.com'
+const API =
+  import.meta.env.VITE_API_URL ||
+  'https://industrial-field-data-analytics.onrender.com'
 
 export default {
   components: { Line, Bar },
