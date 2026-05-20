@@ -1,5 +1,15 @@
-<template>
+<<template>
   <main class="page">
+
+    <div
+      v-if="loading"
+      class="loading-overlay"
+    >
+      <div class="loading-card">
+        Loading industrial telemetry platform...
+      </div>
+    </div>
+
     <header class="hero">
       <div class="hero-content">
         <p class="eyebrow">Field Data • Load Profiles • Reliability</p>
@@ -1103,5 +1113,41 @@ tr:hover td {
   select {
     min-width: 100%;
   }
+}
+.error-banner {
+  margin: 20px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  background: rgba(255, 80, 80, 0.12);
+  border: 1px solid rgba(255, 80, 80, 0.4);
+  color: #ffb3b3;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+}
+
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 10, 20, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(6px);
+}
+
+.loading-card {
+  padding: 24px 32px;
+  border-radius: 18px;
+  background: linear-gradient(
+    135deg,
+    rgba(20, 35, 60, 0.95),
+    rgba(10, 20, 35, 0.95)
+  );
+  border: 1px solid rgba(100, 200, 255, 0.25);
+  color: #d6eaff;
+  font-size: 18px;
+  font-weight: 600;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
 }
 </style>
