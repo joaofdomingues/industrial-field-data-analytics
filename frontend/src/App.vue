@@ -98,6 +98,41 @@
         <small>{{ loading ? 'Loading latest telemetry...' : 'Data loaded from production API' }}</small>
       </div>
     </section>
+    <section class="panel upload-panel">
+  <div class="panel-header">
+    <div>
+      <h2>Telemetry CSV Upload</h2>
+      <p>
+        Import industrial telemetry datasets directly into the analytics platform.
+      </p>
+    </div>
+
+    <span class="chip">CSV Ingestion</span>
+  </div>
+
+  <div class="upload-controls">
+    <input
+      type="file"
+      accept=".csv"
+      @change="handleFileChange"
+    />
+
+    <button
+      class="upload-button"
+      @click="uploadCsv"
+      :disabled="uploading"
+    >
+      {{ uploading ? 'Uploading...' : 'Upload CSV' }}
+    </button>
+  </div>
+
+  <p
+    v-if="uploadMessage"
+    class="upload-message"
+  >
+    {{ uploadMessage }}
+  </p>
+</section>
 
     <section class="grid-two">
       <div class="panel chart-panel">
@@ -329,32 +364,39 @@ const API = import.meta.env.VITE_API_URL || 'https://industrial-field-data-analy
 export default {
   components: { Line, Bar },
 
-  data() {
-    return {
-      apiOnline: false,
-      loading: false,
-      errorMessage: '',
-      selectedMachine: 'All',
-      machines: [],
-      machineLoad: [],
-      loadProfiles: [],
-      alerts: [],
-      dataQuality: [],
-      reliability: [],
-      kpis: {
-        total_records: 0,
-        machines: 0,
-        average_load: 0,
-        total_energy: 0,
-        critical_machines: 0,
-        warning_machines: 0,
-        stable_machines: 0
-      },
-      lastUpdated: null,
-      backendUrl: `${API}/health/`,
-      swaggerUrl: `${API}/api/docs/`
-    }
-  },
+data() {
+  return {
+    apiOnline: false,
+    loading: false,
+    errorMessage: '',
+    selectedMachine: 'All',
+
+    selectedFile: null,
+    uploading: false,
+    uploadMessage: '',
+
+    machines: [],
+    machineLoad: [],
+    loadProfiles: [],
+    alerts: [],
+    dataQuality: [],
+    reliability: [],
+
+    kpis: {
+      total_records: 0,
+      machines: 0,
+      average_load: 0,
+      total_energy: 0,
+      critical_machines: 0,
+      warning_machines: 0,
+      stable_machines: 0,
+    },
+
+    lastUpdated: null,
+    backendUrl: `${API}/health/`,
+    swaggerUrl: `${API}/api/docs/`
+  }
+},
 
   computed: {
     healthScore() {
@@ -477,7 +519,46 @@ export default {
         }
       }
     },
+  handleFileChange(event) {
+  this.selectedFile = event.target.files[0]
+},
 
+async uploadCsv() {
+  if (!this.selectedFile) {
+    this.uploadMessage = 'Please select a CSV file.'
+    return
+  }
+
+  try {
+    this.uploading = true
+    this.uploadMessage = ''
+
+    const formData = new FormData()
+    formData.append('file', this.selectedFile)
+
+    const response = await fetch(`${API}/upload-csv/`, {
+      method: 'POST',
+      body: formData,
+    })
+
+    const result = await response.json()
+
+    if (!response.ok) {
+      throw new Error(result.error || 'Upload failed')
+    }
+
+    this.uploadMessage =
+      `Upload successful: ${result.created_records} records imported.`
+
+    await this.loadDashboardData()
+
+  } catch (error) {
+    this.uploadMessage = error.message
+    console.error(error)
+  } finally {
+    this.uploading = false
+  }
+}
     async getJson(path) {
       const response = await fetch(`${API}${path}`)
 
@@ -931,7 +1012,51 @@ tr:hover td {
   color: #cbd5e1;
   padding: 28px;
 }
+.upload-panel {
+  margin-bottom: 22px;
+}
 
+.upload-controls {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.upload-controls input[type='file'] {
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 12px;
+  padding: 10px;
+  color: #e2e8f0;
+}
+
+.upload-button {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #0ea5e9, #2563eb);
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.upload-button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.upload-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.upload-message {
+  margin-top: 14px;
+  color: #cbd5e1;
+  font-weight: 600;
+}
 @media (max-width: 1100px) {
   .kpis {
     grid-template-columns: repeat(2, minmax(0, 1fr));
