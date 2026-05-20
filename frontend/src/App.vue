@@ -463,7 +463,7 @@ export default {
               maxTicksLimit: 8
             },
             grid: {
-              color: 'rgba(148, 163, 184, 0.08)'
+              color: 'rgba(148, 163, 184, 0.18)'
             }
           },
           y: {
@@ -471,7 +471,7 @@ export default {
               color: '#94a3b8'
             },
             grid: {
-              color: 'rgba(148, 163, 184, 0.12)'
+              color: 'rgba(148, 163, 184, 0.24)'
             }
           }
         }
@@ -550,18 +550,18 @@ export default {
 
 body {
   margin: 0;
-  background: #020617;
+  background: #0f172a;
 }
 
 .page {
   min-height: 100vh;
   padding: 32px;
-  color: #e5e7eb;
+  color: #f1f5f9;
   font-family: Inter, Arial, sans-serif;
   background:
-    radial-gradient(circle at top left, rgba(14, 165, 233, 0.18), transparent 32%),
-    radial-gradient(circle at top right, rgba(34, 197, 94, 0.12), transparent 32%),
-    #020617;
+    radial-gradient(circle at top left, rgba(14, 165, 233, 0.24), transparent 34%),
+    radial-gradient(circle at top right, rgba(34, 197, 94, 0.16), transparent 34%),
+    linear-gradient(180deg, #172033 0%, #0f172a 45%, #111827 100%);
 }
 
 .hero {
@@ -577,7 +577,7 @@ body {
 }
 
 .eyebrow {
-  color: #38bdf8;
+  color: #67e8f9;
   text-transform: uppercase;
   letter-spacing: 0.14em;
   font-size: 12px;
@@ -594,7 +594,7 @@ h1 {
 
 .subtitle {
   max-width: 850px;
-  color: #94a3b8;
+  color: #cbd5e1;
   line-height: 1.7;
   font-size: 16px;
   margin-top: 18px;
@@ -610,17 +610,17 @@ h1 {
 .link-button {
   text-decoration: none;
   color: #e0f2fe;
-  background: rgba(14, 165, 233, 0.16);
-  border: 1px solid rgba(56, 189, 248, 0.35);
+  background: rgba(14, 165, 233, 0.22);
+  border: 1px solid rgba(56, 189, 248, 0.48);
   padding: 10px 14px;
   border-radius: 12px;
   font-weight: 700;
 }
 
 .link-button.secondary {
-  color: #bbf7d0;
-  background: rgba(34, 197, 94, 0.12);
-  border-color: rgba(34, 197, 94, 0.35);
+  color: #dcfce7;
+  background: rgba(34, 197, 94, 0.18);
+  border-color: rgba(34, 197, 94, 0.45);
 }
 
 .hero-status {
@@ -649,15 +649,15 @@ h1 {
 }
 
 .online {
-  background: rgba(34, 197, 94, 0.16);
-  color: #86efac;
-  border: 1px solid rgba(34, 197, 94, 0.42);
+  background: rgba(34, 197, 94, 0.2);
+  color: #bbf7d0;
+  border: 1px solid rgba(34, 197, 94, 0.5);
 }
 
 .offline {
-  background: rgba(239, 68, 68, 0.16);
-  color: #fca5a5;
-  border: 1px solid rgba(239, 68, 68, 0.42);
+  background: rgba(239, 68, 68, 0.2);
+  color: #fecaca;
+  border: 1px solid rgba(239, 68, 68, 0.5);
 }
 
 .updated,
@@ -666,12 +666,12 @@ h1 {
 .panel-header p,
 .filter-info small,
 td small {
-  color: #94a3b8;
+  color: #cbd5e1;
 }
 
 .error-banner {
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  background: rgba(239, 68, 68, 0.16);
   color: #fecaca;
   padding: 14px 16px;
   border-radius: 14px;
@@ -702,17 +702,25 @@ td small {
 .panel,
 .filters,
 .status-card {
-  background: rgba(15, 23, 42, 0.82);
-  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid rgba(203, 213, 225, 0.22);
   border-radius: 22px;
   padding: 22px;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.24);
   backdrop-filter: blur(14px);
+}
+
+.card {
+  background: linear-gradient(180deg, rgba(51, 65, 85, 0.92), rgba(30, 41, 59, 0.9));
+}
+
+.panel {
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.94), rgba(15, 23, 42, 0.92));
 }
 
 .card span,
 .status-card span {
-  color: #93c5fd;
+  color: #bfdbfe;
   font-size: 14px;
   font-weight: 700;
 }
@@ -723,6 +731,7 @@ td small {
   margin-top: 8px;
   font-size: 34px;
   letter-spacing: -0.03em;
+  color: #ffffff;
 }
 
 .card small,
@@ -733,15 +742,15 @@ td small {
 }
 
 .critical {
-  border-color: rgba(239, 68, 68, 0.48);
+  border-color: rgba(248, 113, 113, 0.58);
 }
 
 .warning {
-  border-color: rgba(245, 158, 11, 0.48);
+  border-color: rgba(251, 191, 36, 0.58);
 }
 
 .stable {
-  border-color: rgba(34, 197, 94, 0.48);
+  border-color: rgba(74, 222, 128, 0.58);
 }
 
 .filters {
@@ -755,16 +764,16 @@ td small {
 .filters label {
   display: block;
   font-size: 13px;
-  color: #93c5fd;
+  color: #bfdbfe;
   font-weight: 700;
   margin-bottom: 8px;
 }
 
 select {
   min-width: 260px;
-  background: #020617;
-  color: #e5e7eb;
-  border: 1px solid #334155;
+  background: #1e293b;
+  color: #f8fafc;
+  border: 1px solid #64748b;
   border-radius: 12px;
   padding: 11px 12px;
   outline: none;
@@ -795,6 +804,7 @@ select {
   margin: 0 0 6px;
   font-size: 19px;
   letter-spacing: -0.02em;
+  color: #f8fafc;
 }
 
 .panel-header p {
@@ -807,9 +817,9 @@ select {
   padding: 7px 10px;
   font-size: 12px;
   font-weight: 800;
-  color: #bae6fd;
-  background: rgba(14, 165, 233, 0.12);
-  border: 1px solid rgba(56, 189, 248, 0.25);
+  color: #e0f2fe;
+  background: rgba(14, 165, 233, 0.22);
+  border: 1px solid rgba(56, 189, 248, 0.38);
   white-space: nowrap;
 }
 
@@ -824,7 +834,12 @@ select {
 .skeleton {
   width: 100%;
   border-radius: 18px;
-  background: linear-gradient(90deg, rgba(30, 41, 59, 0.6), rgba(51, 65, 85, 0.9), rgba(30, 41, 59, 0.6));
+  background: linear-gradient(
+    90deg,
+    rgba(51, 65, 85, 0.75),
+    rgba(71, 85, 105, 0.95),
+    rgba(51, 65, 85, 0.75)
+  );
   background-size: 200% 100%;
   animation: shimmer 1.2s infinite;
 }
@@ -852,21 +867,26 @@ table {
 th,
 td {
   padding: 13px 12px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+  border-bottom: 1px solid rgba(203, 213, 225, 0.18);
   text-align: left;
   vertical-align: top;
 }
 
 th {
-  color: #93c5fd;
+  color: #bfdbfe;
   font-weight: 800;
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
 
+td {
+  color: #e2e8f0;
+}
+
 td strong {
   display: block;
+  color: #ffffff;
 }
 
 td small {
@@ -876,7 +896,7 @@ td small {
 }
 
 tr:hover td {
-  background: rgba(30, 41, 59, 0.28);
+  background: rgba(51, 65, 85, 0.45);
 }
 
 .badge {
@@ -889,26 +909,26 @@ tr:hover td {
 }
 
 .badge.critical {
-  color: #fecaca;
-  background: rgba(239, 68, 68, 0.18);
-  border: 1px solid rgba(239, 68, 68, 0.32);
+  color: #fee2e2;
+  background: rgba(239, 68, 68, 0.24);
+  border: 1px solid rgba(248, 113, 113, 0.42);
 }
 
 .badge.warning {
-  color: #fde68a;
-  background: rgba(245, 158, 11, 0.18);
-  border: 1px solid rgba(245, 158, 11, 0.32);
+  color: #fef3c7;
+  background: rgba(245, 158, 11, 0.24);
+  border: 1px solid rgba(251, 191, 36, 0.42);
 }
 
 .badge.low {
-  color: #bbf7d0;
-  background: rgba(34, 197, 94, 0.16);
-  border: 1px solid rgba(34, 197, 94, 0.28);
+  color: #dcfce7;
+  background: rgba(34, 197, 94, 0.22);
+  border: 1px solid rgba(74, 222, 128, 0.36);
 }
 
 .empty {
   text-align: center;
-  color: #94a3b8;
+  color: #cbd5e1;
   padding: 28px;
 }
 
