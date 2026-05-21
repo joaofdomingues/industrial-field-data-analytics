@@ -22,6 +22,10 @@ urlpatterns = [
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
     path("machines/<str:machine_code>/", machine_detail, name="machine-detail"),
     path("upload-csv/", upload_telemetry_csv, name="upload-telemetry-csv"),
+    path('pyspark/load-summary/', views.pyspark_load_summary),
+    path('pyspark/anomalies/', views.pyspark_anomalies),
+    path('pyspark/global-metrics/', views.pyspark_global_metrics),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
 ]

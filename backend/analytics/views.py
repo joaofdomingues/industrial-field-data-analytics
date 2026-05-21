@@ -2,6 +2,7 @@ import csv
 from io import TextIOWrapper
 from django.utils.dateparse import parse_datetime
 from decimal import Decimal
+from pathlib import Path
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -311,3 +312,89 @@ def upload_telemetry_csv(request):
 
     except Exception as exc:
         return Response({'error': str(exc)}, status=500)
+
+
+@api_view(['GET'])
+def pyspark_load_summary(request):
+
+    import csv
+
+    file_path = (
+        Path(__file__).resolve().parent.parent.parent
+        / 'databricks'
+        / 'processed_output'
+        / 'load_summary'
+    )
+
+    csv_files = list(file_path.glob('part-*.csv'))
+
+    if not csv_files:
+        return Response({'error': 'No PySpark load summary found'}, status=404)
+
+    results = []
+
+    with open(csv_files[0], newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+
+        for row in reader:
+            results.append(row)
+
+    return Response(results)
+
+
+@api_view(['GET'])
+def pyspark_anomalies(request):
+    """Return processed PySpark anomalies."""
+
+    import csv
+
+    file_path = (
+        Path(__file__).resolve().parent.parent.parent
+        / 'databricks'
+        / 'processed_output'
+        / 'anomalies'
+    )
+
+    csv_files = list(file_path.glob('part-*.csv'))
+
+    if not csv_files:
+        return Response({'error': 'No PySpark anomalies found'}, status=404)
+
+    results = []
+
+    with open(csv_files[0], newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+
+        for row in reader:
+            results.append(row)
+
+    return Response(results)
+
+
+@api_view(['GET'])
+def pyspark_global_metrics(request):
+    """Return processed PySpark global metrics."""
+
+    import csv
+
+    file_path = (
+        Path(__file__).resolve().parent.parent.parent
+        / 'databricks'
+        / 'processed_output'
+        / 'global_metrics'
+    )
+
+    csv_files = list(file_path.glob('part-*.csv'))
+
+    if not csv_files:
+        return Response({'error': 'No PySpark metrics found'}, status=404)
+
+    results = []
+
+    with open(csv_files[0], newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+
+        for row in reader:
+            results.append(row)
+
+    return Response(results)
