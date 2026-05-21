@@ -247,6 +247,152 @@ def machine_detail(request, machine_code):
     })
 
 @api_view(['POST'])
+
+def refresh_pyspark_outputs():
+    """Generate PySpark-compatible processed analytics outputs from database records."""
+
+    import csv
+    from collections import defaultdict
+
+    output_base = Path(__file__).resolve().parent / "pyspark_outputs"
+    load_dir = output_base / "load_summary"
+    anomalies_dir = output_base / "anomalies"
+    metrics_dir = output_base / "global_metrics"
+
+    for folder in [load_dir, anomalies_dir, metrics_dir]:
+        folder.mkdir(parents=True, exist_ok=True)
+
+    records = SensorData.objects.select_related("machine").all()
+
+    grouped = defaultdict(list)
+    anomalies = []
+
+    total_load = 0
+    total_temperature = 0
+    total_energy = 0
+    total_reliability = 0
+    total_records = 0
+
+    for record in records:
+        machine = record.machine
+
+        temperature = float(record.temperature)
+        vibration = float(record.vibration)
+        energy = float(record.energy_consumption)
+        load = float(record.load_percentage)
+
+        if temperature >= 90:
+            risk_level = "Critical"
+            reliability_score = 35
+        elif vibration >= 5:
+            risk_level = "Warning"
+            reliability_score = 55
+        elif load >= 95:
+            risk_level = "Warning"
+            reliability_score = 65
+        else:
+            risk_level = "Healthy"
+            reliability_score = 90
+
+        item = {
+            "machine_code": machine.machine_code,
+            "machine_name": machine.machine_name,
+            "factory_zone": machine.factory_zone,
+            "temperature": temperature,
+            "vibration": vibration,
+            "energy_consumption": energy,
+            "load_percentage": load,
+            "recorded_at": record.recorded_at.isoformat(),
+            "risk_level": risk_level,
+            "reliability_score": reliability_score,
+        }
+
+        grouped[machine.machine_code].append(item)
+
+        if risk_level in ["Critical", "Warning"]:
+            anomalies.append(item)
+
+        total_load += load
+        total_temperature += temperature
+        total_energy += energy
+        total_reliability += reliability_score
+        total_records += 1
+
+    load_summary_path = load_dir / "part-00000-generated.csv"
+
+    with open(load_summary_path, "w", newline="", encoding="utf-8") as csvfile:
+        fieldnames = [
+            "machine_code",
+            "machine_name",
+            "factory_zone",
+            "records",
+            "avg_load",
+            "max_load",
+            "avg_temperature",
+            "max_temperature",
+            "total_energy",
+            "avg_reliability_score",
+        ]
+
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+
+        for machine_code, rows in grouped.items():
+            writer.writerow({
+                "machine_code": machine_code,
+                "machine_name": rows[0]["machine_name"],
+                "factory_zone": rows[0]["factory_zone"],
+                "records": len(rows),
+                "avg_load": sum(row["load_percentage"] for row in rows) / len(rows),
+                "max_load": max(row["load_percentage"] for row in rows),
+                "avg_temperature": sum(row["temperature"] for row in rows) / len(rows),
+                "max_temperature": max(row["temperature"] for row in rows),
+                "total_energy": sum(row["energy_consumption"] for row in rows),
+                "avg_reliability_score": sum(row["reliability_score"] for row in rows) / len(rows),
+            })
+
+    anomalies_path = anomalies_dir / "part-00000-generated.csv"
+
+    with open(anomalies_path, "w", newline="", encoding="utf-8") as csvfile:
+        fieldnames = [
+            "machine_code",
+            "machine_name",
+            "factory_zone",
+            "temperature",
+            "vibration",
+            "energy_consumption",
+            "load_percentage",
+            "recorded_at",
+            "risk_level",
+            "reliability_score",
+        ]
+
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(anomalies)
+
+    metrics_path = metrics_dir / "part-00000-generated.csv"
+
+    with open(metrics_path, "w", newline="", encoding="utf-8") as csvfile:
+        fieldnames = [
+            "total_records",
+            "global_avg_load",
+            "global_avg_temperature",
+            "global_total_energy",
+            "global_reliability_score",
+        ]
+
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+
+        writer.writerow({
+            "total_records": total_records,
+            "global_avg_load": total_load / total_records if total_records else 0,
+            "global_avg_temperature": total_temperature / total_records if total_records else 0,
+            "global_total_energy": total_energy,
+            "global_reliability_score": total_reliability / total_records if total_records else 0,
+        }) 
+
 def upload_telemetry_csv(request):
     """Upload a telemetry CSV file and import records into the database."""
 
@@ -302,7 +448,7 @@ def upload_telemetry_csv(request):
 
             except Exception as exc:
                 errors.append({'row': index, 'error': str(exc)})
-
+        refresh_pyspark_outputs()    
         return Response({
             'status': 'success',
             'created_records': created_records,
