@@ -320,9 +320,8 @@ def pyspark_load_summary(request):
     import csv
 
     file_path = (
-        Path(__file__).resolve().parent.parent.parent
-        / 'databricks'
-        / 'processed_output'
+        Path(__file__).resolve().parent
+        / 'pyspark_outputs'
         / 'load_summary'
     )
 
@@ -349,9 +348,8 @@ def pyspark_anomalies(request):
     import csv
 
     file_path = (
-        Path(__file__).resolve().parent.parent.parent
-        / 'databricks'
-        / 'processed_output'
+        Path(__file__).resolve().parent
+        / 'pyspark_outputs'
         / 'anomalies'
     )
 
@@ -378,9 +376,8 @@ def pyspark_global_metrics(request):
     import csv
 
     file_path = (
-        Path(__file__).resolve().parent.parent.parent
-        / 'databricks'
-        / 'processed_output'
+        Path(__file__).resolve().parent
+        / 'pyspark_outputs'
         / 'global_metrics'
     )
 
